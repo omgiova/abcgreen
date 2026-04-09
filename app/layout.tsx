@@ -10,10 +10,6 @@ export const metadata: Metadata = {
   title: 'ABC Green super app',
   description: 'Sistema ABC Green super app',
   generator: 'v0.app',
-  icons: {
-    icon: '/abc-green-favicon.svg',
-    shortcut: '/abc-green-favicon.svg',
-  },
 }
 
 export default function RootLayout({

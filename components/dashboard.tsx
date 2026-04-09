@@ -294,14 +294,17 @@ export function Dashboard() {
     <div className="space-y-6">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Image
-            src="/abc-green-logo.svg"
-            alt="Logo da ABC Green"
-            width={88}
-            height={48}
-            className="h-14 w-auto shrink-0"
-            priority
-          />
+          <div className="relative h-16 w-[112px] shrink-0">
+            <Image
+              src="/green%20(3).png"
+              alt="Logo da ABC Green"
+              fill
+              sizes="112px"
+              className="object-contain object-left"
+              unoptimized
+              priority
+            />
+          </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
             <p className="text-muted-foreground">Visão geral da loja ABC na Shopee</p>
