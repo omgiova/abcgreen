@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useMemo, useState, useEffect } from "react"
 import { DollarSign, TrendingUp, ShoppingCart, ArrowDownUp, Send, Calendar as CalendarIcon, Filter } from "lucide-react"
 import { useItems } from "@/hooks/use-data"
@@ -292,9 +293,19 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">Visão geral da sua loja Shopee</p>
+        <div className="flex items-center gap-4">
+          <Image
+            src="/abc-green-logo.svg"
+            alt="Logo da ABC Green"
+            width={88}
+            height={48}
+            className="h-14 w-auto shrink-0"
+            priority
+          />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+            <p className="text-muted-foreground">Visão geral da loja ABC na Shopee</p>
+          </div>
         </div>
         
         <div className="flex flex-wrap items-center gap-3">
