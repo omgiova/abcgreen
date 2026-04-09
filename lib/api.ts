@@ -1,19 +1,9 @@
 import type { Item, CampanhaROI } from "./types"
 
-const APPS_SCRIPT_URL = process.env.NEXT_PUBLIC_APPS_SCRIPT_URL || ""
-
 export async function fetchItems(): Promise<Item[]> {
-  if (!APPS_SCRIPT_URL) {
-    console.warn("NEXT_PUBLIC_APPS_SCRIPT_URL não configurada")
-    return []
-  }
-  
   try {
-    const response = await fetch(`${APPS_SCRIPT_URL}?action=getItems`, {
+    const response = await fetch("/api/items", {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
     })
     
     if (!response.ok) {
@@ -30,27 +20,16 @@ export async function fetchItems(): Promise<Item[]> {
 }
 
 export async function createItem(item: Omit<Item, "id">): Promise<boolean> {
-  if (!APPS_SCRIPT_URL) {
-    console.warn("NEXT_PUBLIC_APPS_SCRIPT_URL não configurada")
-    return false
-  }
-  
   try {
-    const response = await fetch(APPS_SCRIPT_URL, {
+    const response = await fetch("/api/items", {
       method: "POST",
-      mode: "no-cors", // Crucial para Google Apps Script
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        action: "addItem",
-        ...item,
-      }),
+      body: JSON.stringify(item),
     })
-    
-    // Com no-cors, o fetch retorna uma "opaque response" 
-    // que não nos deixa ler o body, mas geralmente indica sucesso se não der throw.
-    return true
+
+    return response.ok
   } catch (error) {
     console.error("Erro ao criar item:", error)
     return false
@@ -58,17 +37,9 @@ export async function createItem(item: Omit<Item, "id">): Promise<boolean> {
 }
 
 export async function fetchCampanhas(): Promise<CampanhaROI[]> {
-  if (!APPS_SCRIPT_URL) {
-    console.warn("NEXT_PUBLIC_APPS_SCRIPT_URL não configurada")
-    return []
-  }
-  
   try {
-    const response = await fetch(`${APPS_SCRIPT_URL}?action=getCampanhas`, {
+    const response = await fetch("/api/campanhas", {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
     })
     
     if (!response.ok) {
@@ -84,21 +55,13 @@ export async function fetchCampanhas(): Promise<CampanhaROI[]> {
 }
 
 export async function createCampanha(campanha: Omit<CampanhaROI, "id">): Promise<boolean> {
-  if (!APPS_SCRIPT_URL) {
-    console.warn("NEXT_PUBLIC_APPS_SCRIPT_URL não configurada")
-    return false
-  }
-  
   try {
-    const response = await fetch(APPS_SCRIPT_URL, {
+    const response = await fetch("/api/campanhas", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        action: "addCampanha",
-        ...campanha,
-      }),
+      body: JSON.stringify(campanha),
     })
     
     return response.ok

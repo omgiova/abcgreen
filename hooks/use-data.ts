@@ -3,25 +3,15 @@
 import useSWR from "swr"
 import type { Item, CampanhaROI } from "@/lib/types"
 
-const APPS_SCRIPT_URL = process.env.NEXT_PUBLIC_APPS_SCRIPT_URL || ""
-
 async function fetchItems(): Promise<Item[]> {
-  if (!APPS_SCRIPT_URL) {
-    return []
-  }
-  
-  const response = await fetch(`${APPS_SCRIPT_URL}?action=getItems`)
+  const response = await fetch("/api/items")
   if (!response.ok) throw new Error("Falha ao buscar itens")
   const data = await response.json()
   return data.items || []
 }
 
 async function fetchCampanhas(): Promise<CampanhaROI[]> {
-  if (!APPS_SCRIPT_URL) {
-    return []
-  }
-  
-  const response = await fetch(`${APPS_SCRIPT_URL}?action=getCampanhas`)
+  const response = await fetch("/api/campanhas")
   if (!response.ok) throw new Error("Falha ao buscar campanhas")
   const data = await response.json()
   return data.campanhas || []
