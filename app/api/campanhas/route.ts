@@ -1,16 +1,7 @@
 import { NextResponse } from "next/server"
-
-const APPS_SCRIPT_URL = process.env.NEXT_PUBLIC_APPS_SCRIPT_URL || ""
+import { getAppsScriptUrl } from "@/lib/apps-script"
 
 export const dynamic = "force-dynamic"
-
-function getAppsScriptUrl() {
-  if (!APPS_SCRIPT_URL) {
-    throw new Error("NEXT_PUBLIC_APPS_SCRIPT_URL não configurada")
-  }
-
-  return APPS_SCRIPT_URL
-}
 
 export async function GET() {
   try {
