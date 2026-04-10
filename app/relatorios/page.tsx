@@ -209,10 +209,10 @@ export default function RelatoriosPage() {
             <TableSkeleton rows={6} />
           </div>
         ) : (
-          <Tabs defaultValue="resumo" className="w-full">
+          <Tabs defaultValue="detalhes" className="w-full">
             <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+              <TabsTrigger value="detalhes">Relatório completo</TabsTrigger>
               <TabsTrigger value="resumo">Resumo Mensal</TabsTrigger>
-              <TabsTrigger value="detalhes">Detalhamento</TabsTrigger>
             </TabsList>
             
             <TabsContent value="resumo" className="mt-6">

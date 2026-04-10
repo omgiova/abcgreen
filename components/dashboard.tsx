@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { useMemo, useState, useEffect } from "react"
-import { DollarSign, TrendingUp, ShoppingCart, ArrowDownUp, Send, Calendar as CalendarIcon, Filter } from "lucide-react"
+import { DollarSign, TrendingUp, ShoppingCart, ArrowDownUp, Calendar as CalendarIcon, Filter } from "lucide-react"
 import { useItems } from "@/hooks/use-data"
 import { KpiCard } from "./kpi-card"
 import { KpiCardSkeleton, TableSkeleton, ChartSkeleton } from "./skeleton-loader"
@@ -10,8 +10,6 @@ import { ProfitChart } from "./profit-chart"
 import { TransactionsTable } from "./transactions-table"
 import { formatCurrency } from "@/lib/format"
 import { Button } from "./ui/button"
-import { createItem } from "@/lib/api"
-import { useToast } from "@/hooks/use-toast"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,9 +44,6 @@ export function Dashboard() {
     setMounted(true)
   }, [])
   
-  const { toast } = useToast()
-  const [isSending, setIsSending] = useState(false)
-  
   // Estados de Filtro
   const [range, setRange] = useState<TimeRange>("tudo")
   const [startDate, setStartDate] = useState<string>("")
@@ -57,7 +52,7 @@ export function Dashboard() {
   
   // Filtros de Despesa
   const [showAds, setShowAds] = useState(true)
-  const [showSaques, setShowSaques] = useState(true)
+  const [showSaques, setShowSaques] = useState(false)
   const [showMateriais, setShowMateriais] = useState(true)
   
   // Estado para o Modal de Detalhes
@@ -253,34 +248,6 @@ export function Dashboard() {
     }
   }, [selectedKpi, filteredItems, showAds, showSaques, showMateriais])
 
-  const handleSendTestData = async () => {
-    setIsSending(true)
-    try {
-      const mockItem = {
-        data: new Date().toLocaleDateString("pt-BR"),
-        tipo: Math.random() > 0.5 ? "entrada" : "saida" as "entrada" | "saida",
-        cliente: "Cliente de Teste " + Math.floor(Math.random() * 100),
-        descricao: "Produto de Teste " + Math.floor(Math.random() * 1000),
-        valorTotal: Math.floor(Math.random() * 100) + 50,
-        taxaShopee: Math.random() > 0.5 ? 12 : 0,
-        metodo: "Pix",
-        status: "concluido",
-      }
-
-      const success = await createItem(mockItem)
-      if (success) {
-        toast({ title: "Dados de teste enviados!", description: "Os dados foram adicionados à sua planilha com sucesso." })
-        mutate()
-      } else {
-        throw new Error("Falha ao enviar")
-      }
-    } catch (err) {
-      toast({ title: "Erro ao enviar dados", description: "Verifique sua conexão e a URL do Apps Script.", variant: "destructive" })
-    } finally {
-      setIsSending(false)
-    }
-  }
-
   if (error) {
     return (
       <div className="flex h-64 flex-col items-center justify-center gap-4">
@@ -292,7 +259,7 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center">
         <div className="flex items-center gap-4">
           <div className="relative h-16 w-[112px] shrink-0">
             <Image
@@ -307,44 +274,23 @@ export function Dashboard() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-muted-foreground">Visão geral da loja ABC na Shopee</p>
+            <p className="text-muted-foreground">Visão geral da loja ABC Green na Shopee</p>
           </div>
         </div>
+
+        <div className="flex justify-center">
+          <Button asChild>
+            <a
+              href="https://shopee.com.br/abc.green"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Ver loja
+            </a>
+          </Button>
+        </div>
         
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Filtro de Tipo Global */}
-          <div className="flex bg-muted p-1 rounded-md h-9">
-            <button
-              onClick={() => setTipo("todos")}
-              className={cn(
-                "px-4 h-full text-xs font-medium rounded-sm transition-all",
-                tipo === "todos" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Todos
-            </button>
-            <button
-              onClick={() => setTipo("entrada")}
-              className={cn(
-                "px-4 h-full text-xs font-medium rounded-sm transition-all",
-                tipo === "entrada" ? "bg-background text-success shadow-sm" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Entrada
-            </button>
-            <button
-              onClick={() => setTipo("saida")}
-              className={cn(
-                "px-4 h-full text-xs font-medium rounded-sm transition-all",
-                tipo === "saida" ? "bg-background text-destructive shadow-sm" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Saída
-            </button>
-          </div>
-
-          <div className="h-6 w-px bg-border hidden sm:block" />
-
+        <div className="flex flex-wrap items-center gap-3 lg:justify-end">
           {/* Filtro de Período */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -373,10 +319,6 @@ export function Dashboard() {
               <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-32 h-9" />
             </div>
           )}
-
-          <Button onClick={handleSendTestData} disabled={isSending} variant="outline" size="icon" title="Enviar Dados de Teste">
-            <Send className="h-4 w-4" />
-          </Button>
         </div>
       </div>
 
