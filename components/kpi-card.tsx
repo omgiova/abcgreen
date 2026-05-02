@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils"
 interface KpiCardProps {
   title: string
   value: string
+  subtitle?: string
+  subtitleClassName?: string
   icon?: React.ReactNode
   className?: string
   valueClassName?: string
@@ -15,7 +17,7 @@ interface KpiCardProps {
   }
 }
 
-export function KpiCard({ title, value, icon, className, valueClassName, onClick, children, trend }: KpiCardProps) {
+export function KpiCard({ title, value, subtitle, subtitleClassName, icon, className, valueClassName, onClick, children, trend }: KpiCardProps) {
   return (
     <Card 
       className={cn(
@@ -41,6 +43,7 @@ export function KpiCard({ title, value, icon, className, valueClassName, onClick
       </CardHeader>
       <CardContent className="space-y-2">
         <div className={cn("text-2xl font-bold", valueClassName)}>{value}</div>
+        {subtitle && <p className={cn("text-xs text-muted-foreground", subtitleClassName)}>{subtitle}</p>}
         {trend && (
           <p className={cn(
             "mt-1 text-xs",

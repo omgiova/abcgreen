@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useState, useMemo, useEffect } from "react"
 import {
   Table,
@@ -20,6 +21,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { formatCurrency, formatDate } from "@/lib/format"
+import { getEntradaThumbnailPath } from "@/lib/product-thumbnail"
 import type { Item, FormaPagamento, TipoTransacao } from "@/lib/types"
 
 interface TransactionsTableProps {
@@ -188,6 +190,7 @@ export function TransactionsTable({ items }: TransactionsTableProps) {
                   const isEntrada = type === "entrada"
                   const isAds = type === "ads"
                   const isSaque = type === "saque"
+                  const thumbnailPath = getEntradaThumbnailPath(item.nome, item.tipo)
                   
                   return (
                     <TableRow key={`${item.id}-${idx}`} className="hover:bg-muted/30">
@@ -195,13 +198,26 @@ export function TransactionsTable({ items }: TransactionsTableProps) {
                         {formatDate(item.data)}
                       </TableCell>
                       <TableCell>
-                        <div>
-                          <div className="font-medium">{item.nome}</div>
-                          {item.nomeComprador && (
-                            <div className="text-xs text-muted-foreground truncate max-w-[200px]">
-                              {item.nomeComprador}
+                        <div className="flex items-center gap-3">
+                          {thumbnailPath && (
+                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/20">
+                              <Image
+                                src={thumbnailPath}
+                                alt={`Miniatura de ${item.nome}`}
+                                fill
+                                sizes="40px"
+                                className="object-cover"
+                              />
                             </div>
                           )}
+                          <div>
+                            <div className="font-medium">{item.nome}</div>
+                            {item.nomeComprador && (
+                              <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                                {item.nomeComprador}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
