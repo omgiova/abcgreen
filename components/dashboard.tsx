@@ -400,6 +400,11 @@ export function Dashboard() {
     }
   }, [selectedKpi, filteredItems, showAds, showMateriais])
 
+  const receitaGroupedDetails = useMemo(() => {
+    if (selectedKpi !== "receita") return []
+    return groupItemsByName(kpiDetails)
+  }, [selectedKpi, kpiDetails])
+
   const recentMovements = useMemo(() => {
     if (!items) return []
 
@@ -484,13 +489,13 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center">
-        <div className="flex items-center gap-4">
-          <div className="relative h-16 w-[112px] shrink-0">
+        <div className="flex items-center gap-6">
+          <div className="relative h-16 w-16 shrink-0">
             <Image
               src="/green%20(3).png"
               alt="Logo da ABC Green"
               fill
-              sizes="112px"
+              sizes="64px"
               className="object-contain object-left"
               unoptimized
               priority
@@ -501,16 +506,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-2">
-          <Button asChild>
-            <a
-              href="https://shopee.com.br/abc.green"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Ver loja
-            </a>
-          </Button>
+        <div className="flex flex-wrap items-center justify-center gap-2">
           <Button
             variant="outline"
             size="icon"
@@ -522,9 +518,7 @@ export function Dashboard() {
           >
             <List className="h-4 w-4" />
           </Button>
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-3 lg:justify-end">
+
           {/* Filtro de Período */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -546,6 +540,16 @@ export function Dashboard() {
             </DropdownMenuContent>
           </DropdownMenu>
 
+          <Button asChild>
+            <a
+              href="https://shopee.com.br/abc.green"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Ver loja
+            </a>
+          </Button>
+
           {range === "custom" && (
             <div className="flex items-center gap-2">
               <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-32 h-9" />
@@ -554,6 +558,8 @@ export function Dashboard() {
             </div>
           )}
         </div>
+
+        <div className="hidden lg:block" />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -879,6 +885,97 @@ export function Dashboard() {
                         </div>
                       )
                     })}
+                  </>
+                ) : selectedKpi === "receita" ? (
+                  <>
+                    {receitaGroupedDetails.length === 0 ? (
+                      <div className="text-center py-12 text-muted-foreground">
+                        Nenhum registro encontrado para este KPI.
+                      </div>
+                    ) : (
+                      <Accordion type="multiple" className="w-full">
+                        {receitaGroupedDetails.map((group, groupIndex) => {
+                          const groupThumbnailPath = getEntradaThumbnailPath(group.nome, "entrada")
+                          return (
+                            <AccordionItem key={`receita-${group.nome}-${groupIndex}`} value={`receita-${groupIndex}`}>
+                              <AccordionTrigger className="py-3 hover:no-underline">
+                                <div className="flex w-full items-center justify-between gap-3 pr-2">
+                                  <div className="flex items-center gap-3 text-left">
+                                    {groupThumbnailPath && (
+                                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/20">
+                                        <Image
+                                          src={groupThumbnailPath}
+                                          alt={`Miniatura de ${group.nome}`}
+                                          fill
+                                          sizes="40px"
+                                          className="object-cover"
+                                        />
+                                      </div>
+                                    )}
+                                    <div>
+                                      <div className="font-medium text-sm">{group.nome}</div>
+                                      <div className="text-xs text-muted-foreground">{group.items.length} lançamentos</div>
+                                    </div>
+                                  </div>
+                                  <div className="font-mono font-bold text-sm text-success">
+                                    +{formatCurrency(group.total)}
+                                  </div>
+                                </div>
+                              </AccordionTrigger>
+                              <AccordionContent>
+                                <div className="space-y-2 pt-1">
+                                  {group.items.map((item, idx) => {
+                                    const thumbnailPath = getEntradaThumbnailPath(item.nome, item.tipo)
+                                    return (
+                                      <div key={`${item.id}-${idx}`} className="flex items-center justify-between p-3 rounded-lg border bg-background hover:bg-muted/30 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                          {thumbnailPath && (
+                                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/20">
+                                              <Image
+                                                src={thumbnailPath}
+                                                alt={`Miniatura de ${item.nome}`}
+                                                fill
+                                                sizes="40px"
+                                                className="object-cover"
+                                              />
+                                            </div>
+                                          )}
+                                          <div className="space-y-1">
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-xs text-muted-foreground">{formatDate(item.data)}</span>
+                                              <Badge variant="outline" className="text-[10px] h-4 font-normal capitalize">
+                                                {item.tipo}
+                                              </Badge>
+                                            </div>
+                                            <div className="font-medium text-sm">
+                                              {item.nome}
+                                              {item.quantidade > 0 && (
+                                                <span className="ml-2 text-xs text-muted-foreground font-normal">
+                                                  (x{item.quantidade})
+                                                </span>
+                                              )}
+                                            </div>
+                                            {item.descricao && (
+                                              <div className="text-[11px] text-muted-foreground break-words">
+                                                {item.descricao}
+                                              </div>
+                                            )}
+                                            {item.nomeComprador && <div className="text-[10px] text-muted-foreground">{item.nomeComprador}</div>}
+                                          </div>
+                                        </div>
+                                        <div className="font-mono font-bold text-success">
+                                          +{formatCurrency(parseItemValue(item))}
+                                        </div>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              </AccordionContent>
+                            </AccordionItem>
+                          )
+                        })}
+                      </Accordion>
+                    )}
                   </>
                 ) : (
                   <>
