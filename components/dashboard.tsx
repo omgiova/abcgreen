@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { useMemo, useState, useEffect } from "react"
-import { DollarSign, TrendingUp, ShoppingCart, ArrowDownUp, Calendar as CalendarIcon, Filter, Percent } from "lucide-react"
+import { DollarSign, TrendingUp, ShoppingCart, ArrowDownUp, Calendar as CalendarIcon, Filter, Percent, List } from "lucide-react"
 import { useItems } from "@/hooks/use-data"
 import { KpiCard } from "./kpi-card"
 import { KpiCardSkeleton, TableSkeleton, ChartSkeleton } from "./skeleton-loader"
@@ -62,6 +62,19 @@ const parseItemValue = (item: Item) => {
   return isNaN(val) ? 0 : Math.abs(val)
 }
 
+const parseItemDate = (value: string) => {
+  if (!value) return null
+
+  if (value.includes("/")) {
+    const [day, month, year] = value.split("/")
+    const parsed = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+    return isNaN(parsed.getTime()) ? null : parsed
+  }
+
+  const parsed = new Date(value)
+  return isNaN(parsed.getTime()) ? null : parsed
+}
+
 const groupItemsByName = (list: Item[]): HierarchyGroup[] => {
   const grouped = new Map<string, HierarchyGroup>()
 
@@ -105,7 +118,16 @@ export function Dashboard() {
   const [calcInvestido, setCalcInvestido] = useState("1")
   const [calcRoi, setCalcRoi] = useState("0")
   const [calcRetorno, setCalcRetorno] = useState("0")
-  const [calcQtd, setCalcQtd] = useState("1")
+  const [lucroQtd, setLucroQtd] = useState("1")
+  const [lucroPct, setLucroPct] = useState("30.00")
+  const [lucroReais, setLucroReais] = useState("0.00")
+  const [lucroLastEdited, setLucroLastEdited] = useState<"pct" | "reais">("pct")
+  const [shopeeValor, setShopeeValor] = useState("0")
+  const [shopeeLiquido, setShopeeLiquido] = useState("-4.00")
+
+  // Estado para Movimentações Recentes
+  const [showRecentMovements, setShowRecentMovements] = useState(false)
+  const [recentMovementsPage, setRecentMovementsPage] = useState(1)
 
   const START_OF_OPERATIONS = new Date(2025, 9, 1) // 01/10/2025 (Mês 9 no JS = Outubro)
 
@@ -378,6 +400,32 @@ export function Dashboard() {
     }
   }, [selectedKpi, filteredItems, showAds, showMateriais])
 
+  const recentMovements = useMemo(() => {
+    if (!items) return []
+
+    return items
+      .filter((item) => ["entrada", "saida", "ads", "saque"].includes(item.tipo))
+      .filter((item) => parseItemDate(item.data) !== null)
+      .sort((a, b) => {
+        const dateA = parseItemDate(a.data)?.getTime() || 0
+        const dateB = parseItemDate(b.data)?.getTime() || 0
+        return dateB - dateA
+      })
+  }, [items])
+
+  const movementsPageSize = 10
+  const recentMovementsTotalPages = Math.max(1, Math.ceil(recentMovements.length / movementsPageSize))
+  const paginatedRecentMovements = useMemo(() => {
+    const start = (recentMovementsPage - 1) * movementsPageSize
+    return recentMovements.slice(start, start + movementsPageSize)
+  }, [recentMovements, recentMovementsPage])
+
+  useEffect(() => {
+    if (recentMovementsPage > recentMovementsTotalPages) {
+      setRecentMovementsPage(recentMovementsTotalPages)
+    }
+  }, [recentMovementsPage, recentMovementsTotalPages])
+
   const saldoHierarchy = useMemo(() => {
     if (!items || items.length === 0) {
       return {
@@ -454,7 +502,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex items-center justify-center gap-2">
           <Button asChild>
             <a
               href="https://shopee.com.br/abc.green"
@@ -463,6 +511,17 @@ export function Dashboard() {
             >
               Ver loja
             </a>
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Ver movimentações recentes"
+            onClick={() => {
+              setRecentMovementsPage(1)
+              setShowRecentMovements(true)
+            }}
+          >
+            <List className="h-4 w-4" />
           </Button>
         </div>
         
@@ -498,9 +557,9 @@ export function Dashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {isLoading ? (
-          <><KpiCardSkeleton /><KpiCardSkeleton /><KpiCardSkeleton /><KpiCardSkeleton /></>
+          <><KpiCardSkeleton /><KpiCardSkeleton /><KpiCardSkeleton /><KpiCardSkeleton /><KpiCardSkeleton /></>
         ) : (
           <>
             <KpiCard 
@@ -536,6 +595,12 @@ export function Dashboard() {
                 </div>
               </div>
             </KpiCard>
+            <KpiCard
+              title="DIFERENÇA"
+              value={formatCurrency(kpis.receitaTotal - kpis.despesaTotal)}
+              icon={<TrendingUp className="h-5 w-5" />}
+              valueClassName={cn("font-bold", (kpis.receitaTotal - kpis.despesaTotal) >= 0 ? "text-success" : "text-destructive")}
+            />
             <KpiCard
               title="CUSTO POR PRODUTO"
               value={formatCurrency(ticketMedioCusto.porProduto)}
@@ -596,6 +661,12 @@ export function Dashboard() {
             setCalcInvestido("1")
             setCalcRoi(kpis.roiPedido.toFixed(2))
             setCalcRetorno(kpis.retornoPorRealInvestido.toFixed(2))
+            setLucroQtd("1")
+            setLucroPct("30.00")
+            setLucroReais((ticketMedioCusto.porProduto * 1.3).toFixed(2))
+            setLucroLastEdited("pct")
+            setShopeeValor("0")
+            setShopeeLiquido("-4.00")
             setShowRoiCalc(true)
           }}
         >
@@ -999,24 +1070,42 @@ export function Dashboard() {
           {/* Calculadora de Lucro */}
           <div className="border-t pt-4 mt-1">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Calculadora de Lucro</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-3 md:grid-cols-3">
               {(() => {
-                const diff = (parseFloat(calcRetorno) || 0) - (parseFloat(calcInvestido) || 0)
-                const qtd = parseFloat(calcQtd) || 1
+                const qtd = parseFloat(lucroQtd) || 1
                 const custoPorProduto = ticketMedioCusto.porProduto
                 const custoTotal = qtd * custoPorProduto
-                const lucroReais = diff - custoTotal
-                const lucroPct = custoTotal > 0 ? (lucroReais / custoTotal) * 100 : 0
-                const isPositiveLucro = lucroReais >= 0
+                const lucroPctNum = parseFloat(lucroPct) || 0
+                const totalLucroNum = parseFloat(lucroReais) || 0
+                const lucroDiferenca = totalLucroNum - custoTotal
+                const roiBase = parseFloat(calcRoi) || 0
+                const investidoLucro = roiBase !== 0 ? totalLucroNum / (roiBase / 100) : 0
+                const retornoLucro = investidoLucro * (1 + roiBase / 100)
+                const isPositiveLucro = lucroDiferenca >= 0
                 return (
                   <>
                     {/* % Lucro */}
                     <div className={cn("rounded-xl border p-4 space-y-1", isPositiveLucro ? "bg-success/10 border-success/30" : "bg-destructive/10 border-destructive/30")}>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Lucro</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Lucro %</p>
                       <div className="flex items-center gap-0.5">
-                        <p className={cn("text-2xl font-bold", isPositiveLucro ? "text-success" : "text-destructive")}>
-                          {lucroPct.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </p>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={lucroPct}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            setLucroLastEdited("pct")
+                            setLucroPct(value)
+                            const pctNum = parseFloat(value)
+                            if (!isNaN(pctNum)) {
+                              setLucroReais((custoTotal * (1 + pctNum / 100)).toFixed(2))
+                            }
+                          }}
+                          className={cn(
+                            "w-full bg-transparent p-0 text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+                            isPositiveLucro ? "text-success" : "text-destructive"
+                          )}
+                        />
                         <span className={cn("text-2xl font-bold", isPositiveLucro ? "text-success" : "text-destructive")}>%</span>
                       </div>
                     </div>
@@ -1027,48 +1116,262 @@ export function Dashboard() {
                       <div className="flex items-center gap-1">
                         <span className={cn("text-2xl font-bold", isPositiveLucro ? "text-success" : "text-destructive")}>R$</span>
                         <p className={cn("text-2xl font-bold", isPositiveLucro ? "text-success" : "text-destructive")}>
-                          {lucroReais.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {lucroDiferenca.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                       </div>
                     </div>
 
-                    {/* Qtd de produtos */}
+                    {/* Total */}
                     <div className="rounded-xl border bg-muted/20 p-4 space-y-1 hover:bg-muted/30 transition-colors">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Qtd Produtos</p>
-                      <input
-                        type="number"
-                        min="1"
-                        step="1"
-                        value={calcQtd}
-                        onChange={(e) => setCalcQtd(e.target.value)}
-                        className="w-full bg-transparent p-0 text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      />
-                    </div>
-
-                    {/* Custo por produto - read only */}
-                    <div className="rounded-xl border bg-muted/10 p-4 space-y-1">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Custo/Produto</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">TOTAL</p>
                       <div className="flex items-center gap-1">
-                        <span className="text-2xl font-bold text-destructive">R$</span>
-                        <p className="text-2xl font-bold text-destructive">
-                          {custoPorProduto.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </p>
+                        <span className="text-2xl font-bold text-foreground">R$</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={lucroReais}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            setLucroLastEdited("reais")
+                            setLucroReais(value)
+                            const totalNum = parseFloat(value)
+                            if (!isNaN(totalNum) && custoTotal > 0) {
+                              setLucroPct((((totalNum / custoTotal) - 1) * 100).toFixed(2))
+                            }
+                          }}
+                          className="w-full bg-transparent p-0 text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
                       </div>
                     </div>
 
-                    {/* Custo total - read only */}
-                    <div className="rounded-xl border bg-muted/10 p-4 space-y-1 col-span-2">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Custo Total ({calcQtd || "1"} × R$ {custoPorProduto.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})</p>
-                      <div className="flex items-center gap-1">
-                        <span className="text-2xl font-bold text-destructive">R$</span>
-                        <p className="text-2xl font-bold text-destructive">
-                          {custoTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </p>
+                    <div className="md:col-span-3 grid gap-3 md:grid-cols-3">
+                      {/* Qtd de produtos */}
+                      <div className="rounded-xl border bg-muted/20 p-4 space-y-1 hover:bg-muted/30 transition-colors">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Qtd Produtos</p>
+                        <input
+                          type="number"
+                          min="1"
+                          step="1"
+                          value={lucroQtd}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const nextQtd = parseFloat(value) || 1
+                            const nextCustoTotal = nextQtd * custoPorProduto
+
+                            setLucroQtd(value)
+
+                            if (lucroLastEdited === "pct") {
+                              const pctNum = parseFloat(lucroPct) || 0
+                              setLucroReais((nextCustoTotal * (1 + pctNum / 100)).toFixed(2))
+                            } else {
+                              const reaisNum = parseFloat(lucroReais) || 0
+                              if (nextCustoTotal > 0) {
+                                setLucroPct((((reaisNum / nextCustoTotal) - 1) * 100).toFixed(2))
+                              }
+                            }
+                          }}
+                          className="w-full bg-transparent p-0 text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                      </div>
+
+                      {/* Custo por produto - read only */}
+                      <div className="rounded-xl border bg-muted/10 p-4 space-y-1">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Custo/Produto</p>
+                        <div className="flex items-center gap-1">
+                          <span className="text-2xl font-bold text-destructive">R$</span>
+                          <p className="text-2xl font-bold text-destructive">
+                            {custoPorProduto.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Custo total - read only */}
+                      <div className="rounded-xl border bg-muted/10 p-4 space-y-1">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Custo Total</p>
+                        <div className="flex items-center gap-1">
+                          <span className="text-2xl font-bold text-destructive">R$</span>
+                          <p className="text-2xl font-bold text-destructive">
+                            {custoTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="md:col-span-3 grid gap-3 md:grid-cols-2">
+                      {/* Investido calculado - read only */}
+                      <div className="rounded-xl border bg-muted/10 p-4 space-y-1">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Investimento previsto</p>
+                        <div className="flex items-center gap-1">
+                          <span className="text-2xl font-bold text-foreground">R$</span>
+                          <p className="text-2xl font-bold text-foreground">
+                            {Number.isFinite(investidoLucro)
+                              ? investidoLucro.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                              : "0,00"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Retorno calculado - read only */}
+                      <div className="rounded-xl border bg-muted/10 p-4 space-y-1">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Retorno previsto</p>
+                        <div className="flex items-center gap-1">
+                          <span className="text-2xl font-bold text-foreground">R$</span>
+                          <p className="text-2xl font-bold text-foreground">
+                            {Number.isFinite(retornoLucro)
+                              ? retornoLucro.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                              : "0,00"}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </>
                 )
               })()}
+            </div>
+          </div>
+
+          <div className="border-t pt-4 mt-1">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Calculadora Shopee</p>
+            {(() => {
+              const valorShopee = parseFloat(shopeeValor) || 0
+              const liquidoShopee = parseFloat(shopeeLiquido) || 0
+              const isPositiveShopee = liquidoShopee >= 0
+
+              return (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border bg-muted/20 p-4 space-y-1 hover:bg-muted/30 transition-colors">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Valor Shopee</p>
+                    <div className="flex items-center gap-1">
+                      <span className="text-2xl font-bold text-foreground">R$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={shopeeValor}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          setShopeeValor(value)
+                          const valorNum = parseFloat(value)
+                          if (!isNaN(valorNum)) {
+                            setShopeeLiquido(((valorNum * 0.8) - 4).toFixed(2))
+                          }
+                        }}
+                        className="w-full bg-transparent p-0 text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className={cn("rounded-xl border p-4 space-y-1", isPositiveShopee ? "bg-success/10 border-success/30" : "bg-destructive/10 border-destructive/30")}>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Líquido Shopee</p>
+                    <div className="flex items-center gap-1">
+                      <span className={cn("text-2xl font-bold", isPositiveShopee ? "text-success" : "text-destructive")}>R$</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={shopeeLiquido}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          setShopeeLiquido(value)
+                          const liquidoNum = parseFloat(value)
+                          if (!isNaN(liquidoNum)) {
+                            setShopeeValor(((liquidoNum + 4) / 0.8).toFixed(2))
+                          }
+                        }}
+                        className={cn(
+                          "w-full bg-transparent p-0 text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+                          isPositiveShopee ? "text-success" : "text-destructive"
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Movimentações Recentes */}
+      <Dialog open={showRecentMovements} onOpenChange={setShowRecentMovements}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Movimentações Recentes</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <ScrollArea className="h-[420px] pr-1">
+              <div className="space-y-2">
+                {paginatedRecentMovements.length === 0 ? (
+                  <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+                    Nenhuma movimentação encontrada.
+                  </div>
+                ) : (
+                  paginatedRecentMovements.map((item) => {
+                    const isEntrada = item.tipo === "entrada"
+                    const movementLabel = isEntrada ? "Entrada" : "Saída"
+                    const thumbnailPath = getEntradaThumbnailPath(item.nome, item.tipo)
+
+                    return (
+                      <div key={item.id} className="flex items-center justify-between rounded-lg border bg-muted/10 p-3">
+                        <div className="flex items-center gap-3">
+                          {thumbnailPath && (
+                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted/20">
+                              <Image
+                                src={thumbnailPath}
+                                alt={`Miniatura de ${item.nome}`}
+                                fill
+                                sizes="40px"
+                                className="object-cover"
+                              />
+                            </div>
+                          )}
+                          <div className="space-y-1">
+                            <p className="font-semibold text-foreground">{item.nome || "Sem nome"}</p>
+                            {item.descricao?.trim() && (
+                              <p className="text-xs text-muted-foreground break-words">{item.descricao.trim()}</p>
+                            )}
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span>{formatDate(item.data)}</span>
+                              <Badge className={cn(
+                                "text-[10px] uppercase tracking-wide",
+                                isEntrada ? "bg-success/20 text-success border-success/30" : "bg-destructive/20 text-destructive border-destructive/30"
+                              )}>
+                                {movementLabel}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                        <p className={cn("text-base font-bold", isEntrada ? "text-success" : "text-destructive")}>
+                          {isEntrada ? "+" : "-"} {formatCurrency(parseItemValue(item))}
+                        </p>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+            </ScrollArea>
+
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Página {recentMovementsPage} de {recentMovementsTotalPages}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setRecentMovementsPage((prev) => Math.max(1, prev - 1))}
+                  disabled={recentMovementsPage === 1}
+                >
+                  Anterior
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setRecentMovementsPage((prev) => Math.min(recentMovementsTotalPages, prev + 1))}
+                  disabled={recentMovementsPage === recentMovementsTotalPages}
+                >
+                  Próxima
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
@@ -1095,6 +1398,6 @@ export function Dashboard() {
           </div>
         </DialogContent>
       </Dialog>
-              </div>
-              )
-              }
+    </div>
+  )
+}

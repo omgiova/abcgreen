@@ -171,9 +171,9 @@ export function ProfitChart({
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      {/* 1. SALDO LÍQUIDO MENSAL (Barra) */}
+      {/* 1. SALDO LÍQUIDO (Barra) */}
       <Card>
-        <CardHeader><CardTitle className="text-lg font-bold uppercase">Saldo Líquido Mensal</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-lg font-bold uppercase">Saldo Líquido</CardTitle></CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={processedData.timeline}>
