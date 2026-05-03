@@ -954,7 +954,7 @@ export function Dashboard() {
             <div className="rounded-xl border bg-muted/20 p-4 space-y-2 hover:bg-muted/30 transition-colors">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Investido</p>
               <div className="flex items-center gap-1">
-                <span className="text-2xl font-bold text-foreground">R$</span>
+                <span className="text-xl sm:text-2xl font-bold text-foreground">R$</span>
                 <input
                   type="number"
                   min="0"
@@ -969,7 +969,7 @@ export function Dashboard() {
                       setCalcRetorno((invNum * (1 + roiNum / 100)).toFixed(2))
                     }
                   }}
-                  className="w-full bg-transparent p-0 text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full bg-transparent p-0 text-xl sm:text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             </div>
@@ -992,11 +992,11 @@ export function Dashboard() {
                     }
                   }}
                   className={cn(
-                    "w-full bg-transparent p-0 text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+                    "w-full bg-transparent p-0 text-xl sm:text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
                     parseFloat(calcRoi) >= 0 ? "text-success" : "text-destructive"
                   )}
                 />
-                <span className={cn("text-2xl font-bold", parseFloat(calcRoi) >= 0 ? "text-success" : "text-destructive")}>%</span>
+                <span className={cn("text-xl sm:text-2xl font-bold", parseFloat(calcRoi) >= 0 ? "text-success" : "text-destructive")}>%</span>
               </div>
             </div>
 
@@ -1004,7 +1004,7 @@ export function Dashboard() {
             <div className="rounded-xl border bg-muted/20 p-4 space-y-2 hover:bg-muted/30 transition-colors">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Retorno</p>
               <div className="flex items-center gap-1">
-                <span className="text-2xl font-bold text-muted-foreground">R$</span>
+                <span className="text-xl sm:text-2xl font-bold text-muted-foreground">R$</span>
                 <input
                   type="number"
                   min="0"
@@ -1019,7 +1019,7 @@ export function Dashboard() {
                       setCalcInvestido((retNum / (1 + roiNum / 100)).toFixed(2))
                     }
                   }}
-                  className="w-full bg-transparent p-0 text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full bg-transparent p-0 text-xl sm:text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             </div>
@@ -1037,9 +1037,9 @@ export function Dashboard() {
                 )}>
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Diferença</p>
                   <div className="flex items-center gap-1">
-                    <span className={cn("text-2xl font-bold", isPositive ? "text-success" : "text-destructive")}>R$</span>
+                    <span className={cn("text-xl sm:text-2xl font-bold", isPositive ? "text-success" : "text-destructive")}>R$</span>
                     <p className={cn(
-                      "text-2xl font-bold",
+                      "text-xl sm:text-2xl font-bold",
                       isPositive ? "text-success" : "text-destructive"
                     )}>
                       {diff.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -1070,7 +1070,7 @@ export function Dashboard() {
           {/* Calculadora de Lucro */}
           <div className="border-t pt-4 mt-1">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Calculadora de Lucro</p>
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 grid-cols-3">
               {(() => {
                 const qtd = parseFloat(lucroQtd) || 1
                 const custoPorProduto = ticketMedioCusto.porProduto
@@ -1102,11 +1102,11 @@ export function Dashboard() {
                             }
                           }}
                           className={cn(
-                            "w-full bg-transparent p-0 text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+                            "w-full bg-transparent p-0 text-xl sm:text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
                             isPositiveLucro ? "text-success" : "text-destructive"
                           )}
                         />
-                        <span className={cn("text-2xl font-bold", isPositiveLucro ? "text-success" : "text-destructive")}>%</span>
+                        <span className={cn("text-xl sm:text-2xl font-bold", isPositiveLucro ? "text-success" : "text-destructive")}>%</span>
                       </div>
                     </div>
 
@@ -1114,8 +1114,8 @@ export function Dashboard() {
                     <div className={cn("rounded-xl border p-4 space-y-1", isPositiveLucro ? "bg-success/10 border-success/30" : "bg-destructive/10 border-destructive/30")}>
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Lucro R$</p>
                       <div className="flex items-center gap-1">
-                        <span className={cn("text-2xl font-bold", isPositiveLucro ? "text-success" : "text-destructive")}>R$</span>
-                        <p className={cn("text-2xl font-bold", isPositiveLucro ? "text-success" : "text-destructive")}>
+                        <span className={cn("text-xl sm:text-2xl font-bold", isPositiveLucro ? "text-success" : "text-destructive")}>R$</span>
+                        <p className={cn("text-xl sm:text-2xl font-bold", isPositiveLucro ? "text-success" : "text-destructive")}>
                           {lucroDiferenca.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                       </div>
@@ -1125,7 +1125,7 @@ export function Dashboard() {
                     <div className="rounded-xl border bg-muted/20 p-4 space-y-1 hover:bg-muted/30 transition-colors">
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">TOTAL</p>
                       <div className="flex items-center gap-1">
-                        <span className="text-2xl font-bold text-foreground">R$</span>
+                        <span className="text-xl sm:text-2xl font-bold text-foreground">R$</span>
                         <input
                           type="number"
                           step="0.01"
@@ -1139,12 +1139,12 @@ export function Dashboard() {
                               setLucroPct((((totalNum / custoTotal) - 1) * 100).toFixed(2))
                             }
                           }}
-                          className="w-full bg-transparent p-0 text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          className="w-full bg-transparent p-0 text-xl sm:text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                       </div>
                     </div>
 
-                    <div className="md:col-span-3 grid gap-3 md:grid-cols-3">
+                    <div className="col-span-3 grid gap-3 grid-cols-3">
                       {/* Qtd de produtos */}
                       <div className="rounded-xl border bg-muted/20 p-4 space-y-1 hover:bg-muted/30 transition-colors">
                         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Qtd Produtos</p>
@@ -1170,7 +1170,7 @@ export function Dashboard() {
                               }
                             }
                           }}
-                          className="w-full bg-transparent p-0 text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          className="w-full bg-transparent p-0 text-xl sm:text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                       </div>
 
@@ -1178,8 +1178,8 @@ export function Dashboard() {
                       <div className="rounded-xl border bg-muted/10 p-4 space-y-1">
                         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Custo/Produto</p>
                         <div className="flex items-center gap-1">
-                          <span className="text-2xl font-bold text-destructive">R$</span>
-                          <p className="text-2xl font-bold text-destructive">
+                          <span className="text-xl sm:text-2xl font-bold text-destructive">R$</span>
+                          <p className="text-xl sm:text-2xl font-bold text-destructive">
                             {custoPorProduto.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </p>
                         </div>
@@ -1189,21 +1189,21 @@ export function Dashboard() {
                       <div className="rounded-xl border bg-muted/10 p-4 space-y-1">
                         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Custo Total</p>
                         <div className="flex items-center gap-1">
-                          <span className="text-2xl font-bold text-destructive">R$</span>
-                          <p className="text-2xl font-bold text-destructive">
+                          <span className="text-xl sm:text-2xl font-bold text-destructive">R$</span>
+                          <p className="text-xl sm:text-2xl font-bold text-destructive">
                             {custoTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="md:col-span-3 grid gap-3 md:grid-cols-2">
+                    <div className="col-span-3 grid gap-3 grid-cols-2">
                       {/* Investido calculado - read only */}
                       <div className="rounded-xl border bg-muted/10 p-4 space-y-1">
                         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Investimento previsto</p>
                         <div className="flex items-center gap-1">
-                          <span className="text-2xl font-bold text-foreground">R$</span>
-                          <p className="text-2xl font-bold text-foreground">
+                          <span className="text-xl sm:text-2xl font-bold text-foreground">R$</span>
+                          <p className="text-xl sm:text-2xl font-bold text-foreground">
                             {Number.isFinite(investidoLucro)
                               ? investidoLucro.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                               : "0,00"}
@@ -1215,8 +1215,8 @@ export function Dashboard() {
                       <div className="rounded-xl border bg-muted/10 p-4 space-y-1">
                         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Retorno previsto</p>
                         <div className="flex items-center gap-1">
-                          <span className="text-2xl font-bold text-foreground">R$</span>
-                          <p className="text-2xl font-bold text-foreground">
+                          <span className="text-xl sm:text-2xl font-bold text-foreground">R$</span>
+                          <p className="text-xl sm:text-2xl font-bold text-foreground">
                             {Number.isFinite(retornoLucro)
                               ? retornoLucro.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                               : "0,00"}
@@ -1242,7 +1242,7 @@ export function Dashboard() {
                   <div className="rounded-xl border bg-muted/20 p-4 space-y-1 hover:bg-muted/30 transition-colors">
                     <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Valor Shopee</p>
                     <div className="flex items-center gap-1">
-                      <span className="text-2xl font-bold text-foreground">R$</span>
+                      <span className="text-xl sm:text-2xl font-bold text-foreground">R$</span>
                       <input
                         type="number"
                         min="0"
@@ -1256,7 +1256,7 @@ export function Dashboard() {
                             setShopeeLiquido(((valorNum * 0.8) - 4).toFixed(2))
                           }
                         }}
-                        className="w-full bg-transparent p-0 text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="w-full bg-transparent p-0 text-xl sm:text-2xl font-bold text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
                   </div>
@@ -1264,7 +1264,7 @@ export function Dashboard() {
                   <div className={cn("rounded-xl border p-4 space-y-1", isPositiveShopee ? "bg-success/10 border-success/30" : "bg-destructive/10 border-destructive/30")}>
                     <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Líquido Shopee</p>
                     <div className="flex items-center gap-1">
-                      <span className={cn("text-2xl font-bold", isPositiveShopee ? "text-success" : "text-destructive")}>R$</span>
+                      <span className={cn("text-xl sm:text-2xl font-bold", isPositiveShopee ? "text-success" : "text-destructive")}>R$</span>
                       <input
                         type="number"
                         step="0.01"
@@ -1278,7 +1278,7 @@ export function Dashboard() {
                           }
                         }}
                         className={cn(
-                          "w-full bg-transparent p-0 text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+                          "w-full bg-transparent p-0 text-xl sm:text-2xl font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
                           isPositiveShopee ? "text-success" : "text-destructive"
                         )}
                       />
