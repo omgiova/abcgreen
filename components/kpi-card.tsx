@@ -42,7 +42,7 @@ export function KpiCard({ title, value, subtitle, subtitleClassName, icon, class
         )}
       </CardHeader>
       <CardContent className="space-y-2">
-        <div className={cn("text-2xl font-bold", valueClassName)}>{value}</div>
+        <div className={cn("text-xl sm:text-2xl font-bold", valueClassName)}>{value}</div>
         {subtitle && <p className={cn("text-xs text-muted-foreground", subtitleClassName)}>{subtitle}</p>}
         {trend && (
           <p className={cn(

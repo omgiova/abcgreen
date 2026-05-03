@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { useMemo, useState, useEffect } from "react"
-import { DollarSign, TrendingUp, ShoppingCart, ArrowDownUp, Calendar as CalendarIcon, Filter, Percent, List } from "lucide-react"
+import { DollarSign, TrendingUp, ShoppingCart, ArrowDownUp, Calendar as CalendarIcon, Filter, Percent, List, Store } from "lucide-react"
 import { useItems } from "@/hooks/use-data"
 import { KpiCard } from "./kpi-card"
 import { KpiCardSkeleton, TableSkeleton, ChartSkeleton } from "./skeleton-loader"
@@ -510,6 +510,14 @@ export function Dashboard() {
           <Button
             variant="outline"
             size="icon"
+            aria-label="Abrir calculadora"
+            onClick={() => setShowRoiCalc(true)}
+          >
+            <Percent className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
             aria-label="Ver movimentações recentes"
             onClick={() => {
               setRecentMovementsPage(1)
@@ -518,6 +526,8 @@ export function Dashboard() {
           >
             <List className="h-4 w-4" />
           </Button>
+
+
 
           {/* Filtro de Período */}
           <DropdownMenu>
@@ -540,16 +550,6 @@ export function Dashboard() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button asChild>
-            <a
-              href="https://shopee.com.br/abc.green"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Ver loja
-            </a>
-          </Button>
-
           {range === "custom" && (
             <div className="flex items-center gap-2">
               <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-32 h-9" />
@@ -557,12 +557,27 @@ export function Dashboard() {
               <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-32 h-9" />
             </div>
           )}
+          <Button asChild variant="outline" size="icon" aria-label="Ver loja" className="lg:hidden">
+            <a href="https://shopee.com.br/abc.green" target="_blank" rel="noreferrer">
+              <Store className="h-4 w-4" />
+            </a>
+          </Button>
         </div>
 
-        <div className="hidden lg:block" />
+        <div className="hidden lg:flex lg:justify-end">
+          <Button asChild variant="outline" size="icon" aria-label="Ver loja">
+            <a
+              href="https://shopee.com.br/abc.green"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Store className="h-4 w-4" />
+            </a>
+          </Button>
+        </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         {isLoading ? (
           <><KpiCardSkeleton /><KpiCardSkeleton /><KpiCardSkeleton /><KpiCardSkeleton /><KpiCardSkeleton /></>
         ) : (
@@ -607,7 +622,7 @@ export function Dashboard() {
               valueClassName={cn("font-bold", (kpis.receitaTotal - kpis.despesaTotal) >= 0 ? "text-success" : "text-destructive")}
             />
             <KpiCard
-              title="CUSTO POR PRODUTO"
+              title="CUSTO PRODUTO"
               value={formatCurrency(ticketMedioCusto.porProduto)}
               icon={<Filter className="h-5 w-5" />}
               valueClassName="font-bold"
@@ -615,10 +630,10 @@ export function Dashboard() {
             <KpiCard 
               title="SALDO ATUAL" 
               value={formatCurrency(saldoAtual)} 
-              subtitle={`Data: ${saldoAtualData}`}
               icon={<TrendingUp className="h-5 w-5" />} 
               valueClassName={cn("font-bold", saldoAtual >= 0 ? "text-success" : "text-destructive")} 
               onClick={() => setSelectedKpi("saldo")}
+              className="col-span-2 lg:col-span-1"
             />
           </>
         )}
@@ -626,7 +641,7 @@ export function Dashboard() {
 
       <div className="grid gap-6 items-stretch md:grid-cols-[1fr_auto_1fr]">
         {/* Grupo 1: Pedidos */}
-        <div className="p-4 pb-1 rounded-xl border bg-muted/5 space-y-3">
+        <div className="order-2 md:order-1 p-4 pb-1 rounded-xl border bg-muted/5 space-y-3">
           <div className="flex items-center gap-2 border-b pb-2">
             <ShoppingCart className="h-4 w-4 text-primary" />
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Análise por Pedido</h3>
@@ -661,7 +676,7 @@ export function Dashboard() {
 
         {/* ROI — centro */}
         <div
-          className="w-[270px] p-4 pb-1 rounded-xl border bg-muted/5 flex flex-col cursor-pointer hover:border-primary/50 hover:bg-muted/50 active:scale-[0.98] transition-all duration-200"
+          className="order-1 md:order-2 w-full md:w-[270px] p-4 pb-1 rounded-xl border bg-muted/5 flex flex-col cursor-pointer hover:border-primary/50 hover:bg-muted/50 active:scale-[0.98] transition-all duration-200"
           onClick={() => {
             setCalcInvestido("1")
             setCalcRoi(kpis.roiPedido.toFixed(2))
@@ -698,7 +713,7 @@ export function Dashboard() {
         </div>
 
         {/* Grupo 2: Produtos */}
-        <div className="p-4 pb-1 rounded-xl border bg-muted/5 space-y-3">
+        <div className="order-3 md:order-3 p-4 pb-1 rounded-xl border bg-muted/5 space-y-3">
           <div className="flex items-center gap-2 border-b pb-2">
             <Filter className="h-4 w-4 text-primary" />
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Análise por Produto</h3>
