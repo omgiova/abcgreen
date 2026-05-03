@@ -497,8 +497,7 @@ export function Dashboard() {
             />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-muted-foreground">Visão geral da loja ABC Green na Shopee</p>
+            <h1 className="text-2xl font-bold text-foreground">Dashboard - ABC Green</h1>
           </div>
         </div>
 
@@ -945,7 +944,7 @@ export function Dashboard() {
 
       {/* Calculadora de ROI */}
       <Dialog open={showRoiCalc} onOpenChange={setShowRoiCalc}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Calculadora de ROI</DialogTitle>
           </DialogHeader>
